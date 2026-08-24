@@ -14,7 +14,6 @@
         .btn-view { transition: all 0.2s; }
         .btn-view:hover { transform: scale(1.05); }
         
-        /* تنسيق مميز لطلبات اليوم الحالي */
         .today-order {
             background-color: #e8f5e9 !important;
             border-right: 4px solid #2e7d32;
@@ -96,7 +95,6 @@
                     </thead>
                     <tbody>
                         {% for req in requests_list %}
-                            {# التحقق إذا كان الطلب وارد اليوم #}
                             {% set is_today = req.date.startswith(today_str) %}
                             <tr class="{{ 'today-order' if is_today else '' }}">
                                 <td class="fw-bold text-primary">
@@ -126,7 +124,6 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <!-- زر الحذف مع تأكيد جافاسكريبت -->
                                     <form action="{{ url_for('delete_order', index=loop.index0) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟');">
                                         <button type="submit" class="btn btn-sm btn-danger fw-bold" title="حذف الطلب">
                                             <i class="fa-solid fa-trash-can"></i>

@@ -19,29 +19,18 @@
             <div class="text-center mb-4">
                 <i class="fa-solid fa-paper-plane fa-3x text-primary mb-3"></i>
                 <h2 class="fw-bold text-dark">بوابة إرسال الطلبات</h2>
-                <p class="text-muted">يرجى تعبئة تفاصيل الطلب واختيار الشركة المعنية بدقة</p>
+                <p class="text-muted">يرجى تعبئة تفاصيل الطلب بدقة لإرساله إلى الإدارة</p>
             </div>
             
             {% if success %}
                 <div class="alert alert-success text-center fw-bold py-3" role="alert">
-                    <i class="fa-solid fa-check-circle me-2"></i> تم إرسال طلبك بنجاح إلى الشركة المحددة!
+                    <i class="fa-solid fa-check-circle me-2"></i> تم إرسال طلبك بنجاح إلى الإدارة!
                 </div>
             {% endif %}
 
             <form action="/client" method="POST" enctype="multipart/form-data">
-                <!-- اختيار الشركة المستهدفة -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold text-secondary"><i class="fa-solid fa-building me-1"></i> اختر الشركة المستهدفة:</label>
-                    <select name="company_email" class="form-select form-select-lg bg-light" required>
-                        <option value="" disabled selected>-- حدد الشركة المطلوبة --</option>
-                        {% for email, data in users_db.items() %}
-                            <option value="{{ email }}">{{ data.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold text-secondary"><i class="fa-solid fa-user-tie me-1"></i> اسم الجهة / المشروع:</label>
+                    <label class="form-label fw-bold text-secondary"><i class="fa-solid fa-building me-1"></i> اسم الجهة / المشروع:</label>
                     <input type="text" class="form-control form-control-lg bg-light" name="client_name" required placeholder="أدخل اسم الجهة أو المشروع...">
                 </div>
                 <div class="mb-3">

@@ -14,11 +14,15 @@
         .btn-view { transition: all 0.2s; }
         .btn-view:hover { transform: scale(1.05); }
         
+        /* تنسيق مميز لطلبات اليوم الحالي */
+        .today-order {
+            background-color: #e8f5e9 !important;
+            border-right: 4px solid #2e7d32;
+        }
+        
         @media print {
             .no-print, .navbar, .btn { display: none !important; }
             body { background: white !important; margin: 0 !important; padding: 0 !important; }
-            
-            /* إعدادات لتغطية كامل الورقة بالصورة وتجنب أي هوامش */
             @page { size: auto; margin: 0mm; }
             .print-container {
                 width: 100vw;
@@ -30,12 +34,11 @@
             img {
                 width: 100% !important;
                 height: 100% !important;
-                object-fit: contain !important; /* لضمان عدم قص أطراف الصورة */
+                object-fit: contain !important;
             }
         }
     </style>
     <script>
-        // دالة لفتح الصورة في نافذة طباعة وتمشيطها لتملأ الورقة
         function printImageFullPage(fileUrl) {
             var printWindow = window.open('', '_blank');
             printWindow.document.write(`
@@ -88,12 +91,20 @@
                             <th class="py-3">وقت الاستقبال</th>
                             <th class="py-3">المرفق</th>
                             <th class="py-3">طباعة الصورة</th>
+                            <th class="py-3">الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for req in requests_list %}
-                            <tr>
-                                <td class="fw-bold text-primary">{{ req.client_name }}</td>
+                            {# التحقق إذا كان الطلب وارد اليوم #}
+                            {% set is_today = req.date.startswith(today_str) %}
+                            <tr class="{{ 'today-order' if is_today else '' }}">
+                                <td class="fw-bold text-primary">
+                                    {{ req.client_name }}
+                                    {% if is_today %}
+                                        <span class="badge bg-success ms-1 d-block mt-1" style="font-size: 10px;">جديد اليوم</span>
+                                    {% endif %}
+                                </td>
                                 <td class="text-start text-secondary px-3" style="max-width: 350px;">{{ req.content }}</td>
                                 <td class="text-muted small"><i class="fa-regular fa-clock me-1"></i>{{ req.date }}</td>
                                 <td>
@@ -105,7 +116,7 @@
                                         <span class="badge bg-light text-muted border">بلا مرفق</span>
                                     {% endif %}
                                 </td>
-                            <td>
+                                <td>
                                     {% if req.filename %}
                                         <button onclick="printImageFullPage('{{ url_for('uploaded_file', filename=req.filename) }}')" class="btn btn-sm btn-dark fw-bold" title="طباعة الصورة على كامل الورقة">
                                             <i class="fa-solid fa-print me-1"></i> طباعة ملء الورقة
@@ -114,10 +125,18 @@
                                         <span class="text-muted">-</span>
                                     {% endif %}
                                 </td>
+                                <td>
+                                    <!-- زر الحذف مع تأكيد جافاسكريبت -->
+                                    <form action="{{ url_for('delete_order', index=loop.index0) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟');">
+                                        <button type="submit" class="btn btn-sm btn-danger fw-bold" title="حذف الطلب">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="5" class="text-muted text-center py-5">
+                                <td colspan="6" class="text-muted text-center py-5">
                                     <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3 d-block"></i>
                                     لا توجد أي طلبات واردة من المشاريع حتى الآن.
                                 </td>

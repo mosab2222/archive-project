@@ -95,19 +95,19 @@
                     </thead>
                     <tbody>
                         {% for req in requests_list %}
-                            {% set is_today = req.date.startswith(today_str) %}
+                            {% set is_today = req['date'].startswith(today_str) %}
                             <tr class="{{ 'today-order' if is_today else '' }}">
                                 <td class="fw-bold text-primary">
-                                    {{ req.client_name }}
+                                    {{ req['client_name'] }}
                                     {% if is_today %}
                                         <span class="badge bg-success ms-1 d-block mt-1" style="font-size: 10px;">جديد اليوم</span>
                                     {% endif %}
                                 </td>
-                                <td class="text-start text-secondary px-3" style="max-width: 350px;">{{ req.content }}</td>
-                                <td class="text-muted small"><i class="fa-regular fa-clock me-1"></i>{{ req.date }}</td>
+                                <td class="text-start text-secondary px-3" style="max-width: 350px;">{{ req['content'] }}</td>
+                                <td class="text-muted small"><i class="fa-regular fa-clock me-1"></i>{{ req['date'] }}</td>
                                 <td>
-                                    {% if req.filename %}
-                                        <a href="{{ url_for('uploaded_file', filename=req.filename) }}" target="_blank" class="btn btn-sm btn-outline-primary btn-view fw-bold">
+                                    {% if req['filename'] %}
+                                        <a href="{{ url_for('uploaded_file', filename=req['filename']) }}" target="_blank" class="btn btn-sm btn-outline-primary btn-view fw-bold">
                                             <i class="fa-solid fa-eye me-1"></i> عرض الملف
                                         </a>
                                     {% else %}
@@ -115,8 +115,8 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if req.filename %}
-                                        <button onclick="printImageFullPage('{{ url_for('uploaded_file', filename=req.filename) }}')" class="btn btn-sm btn-dark fw-bold" title="طباعة الصورة على كامل الورقة">
+                                    {% if req['filename'] %}
+                                        <button onclick="printImageFullPage('{{ url_for('uploaded_file', filename=req['filename']) }}')" class="btn btn-sm btn-dark fw-bold" title="طباعة الصورة على كامل الورقة">
                                             <i class="fa-solid fa-print me-1"></i> طباعة ملء الورقة
                                         </button>
                                     {% else %}
@@ -124,7 +124,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <form action="{{ url_for('delete_order', index=loop.index0) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟');">
+                                    <form action="{{ url_for('delete_order', order_id=req['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟');">
                                         <button type="submit" class="btn btn-sm btn-danger fw-bold" title="حذف الطلب">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </button>

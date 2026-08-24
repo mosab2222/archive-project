@@ -11,7 +11,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 requests_db = []
 
 
-# مسار التوجيه التلقائي للصفحة الرئيسية
 @app.route("/")
 def home():
   return redirect(url_for("client_page"))
@@ -23,7 +22,6 @@ def client_page():
   if request.method == "POST":
     client_name = request.form.get("client_name")
     content = request.form.get("content")
-    # حفظ التاريخ بصيغة YYYY-MM-DD لمقارنته بسهولة، مع الوقت
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     file = request.files.get("file")
@@ -46,14 +44,12 @@ def client_page():
 
 @app.route("/admin")
 def admin_page():
-  # إرسال تاريخ اليوم الحالي للتحقق من الطلبات اليومية
   today_str = datetime.now().strftime("%Y-%m-%d")
   return render_template(
       "admin.html", requests_list=requests_db, today_str=today_str
   )
 
 
-# مسار حذف طلب بناءً على رقمه في القائمة (Index)
 @app.route("/delete/<int:index>", methods=["POST"])
 def delete_order(index):
   if 0 <= index < len(requests_db):

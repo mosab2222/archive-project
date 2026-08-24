@@ -10,6 +10,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 requests_db = []
 
+# مسار التوجيه التلقائي للصفحة الرئيسية
+@app.route('/')
+def home():
+    return redirect(url_for('client_page'))
+
 @app.route('/client', methods=['GET', 'POST'])
 def client_page():
     success = False

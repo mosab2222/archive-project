@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import sqlite3
 from flask import Flask, redirect, render_template, request, send_from_directory, url_for
 
 app = Flask(__name__)
@@ -8,7 +9,25 @@ UPLOAD_FOLDER = "uploads/received_requests"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-requests_db = []
+# إعداد قاعدة بيانات SQLite لتخزين الطلبات بشكل دائم
+DB_NAME = "requests_database.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_name TEXT,
+            content TEXT,
+            date TEXT,
+            filename TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
 
 
 @app.route("/")
@@ -31,12 +50,16 @@ def client_page():
       filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
       file.save(filepath)
 
-    requests_db.append({
-        "client_name": client_name,
-        "content": content,
-        "date": date_str,
-        "filename": filename,
-    })
+    # حفظ الطلب في قاعدة البيانات بدلاً من المصفوفة المؤقتة
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO orders (client_name, content, date, filename)
+        VALUES (?, ?, ?, ?)
+    ''', (client_name, content, date_str, filename))
+    conn.commit()
+    conn.close()
+    
     success = True
 
   return render_template("client.html", success=success)
@@ -45,15 +68,28 @@ def client_page():
 @app.route("/admin")
 def admin_page():
   today_str = datetime.now().strftime("%Y-%m-%d")
+  
+  # جلب الطلبات من قاعدة البيانات لعرضها في لوحة التحكم
+  conn = sqlite3.connect(DB_NAME)
+  conn.row_factory = sqlite3.Row  # لجعل النتائج قابلة للاستدعاء كـ Dictionary
+  cursor = conn.cursor()
+  cursor.execute("SELECT * FROM orders ORDER BY id DESC")
+  requests_list = cursor.fetchall()
+  conn.close()
+
   return render_template(
-      "admin.html", requests_list=requests_db, today_str=today_str
+      "admin.html", requests_list=requests_list, today_str=today_str
   )
 
 
-@app.route("/delete/<int:index>", methods=["POST"])
-def delete_order(index):
-  if 0 <= index < len(requests_db):
-    requests_db.pop(index)
+@app.route("/delete/<int:order_id>", methods=["POST"])
+def delete_order(order_id):
+  # الحذف باستخدام الـ id الحقيقي من قاعدة البيانات
+  conn = sqlite3.connect(DB_NAME)
+  cursor = conn.cursor()
+  cursor.execute("DELETE FROM orders WHERE id = ?", (order_id,))
+  conn.commit()
+  conn.close()
   return redirect(url_for("admin_page"))
 
 
